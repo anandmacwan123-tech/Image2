@@ -1,6 +1,6 @@
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { resolve } from "node:path";
-import type { Plugin } from "vite";
+import { defaultClientConditions, type Plugin } from "vite";
 import { defineConfig } from "vitest/config";
 
 // Cross-origin isolation lets the WASM fallback use threads. Production gets
@@ -49,6 +49,10 @@ function localModels(): Plugin {
 
 export default defineConfig({
   plugins: [localModels()],
+  // ORT's default entry bundles its 26 MB runtime as an asset, over the
+  // Cloudflare per-file limit. The extern-wasm entry loads it from the URL
+  // set in the worker instead (served from R2 under /models/).
+  resolve: { conditions: ["onnxruntime-web-use-extern-wasm", ...defaultClientConditions] },
   server: { headers: isolation },
   preview: { headers: isolation },
   worker: { format: "es" },

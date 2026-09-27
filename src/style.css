@@ -1,0 +1,190 @@
+:root {
+  --bg: #0a0a0a;
+  --line: #222222;
+  --text: #ededed;
+  --dim: #6b6b6b;
+  --font: "IBM Plex Mono", ui-monospace, monospace;
+  --size: 12px;
+  --bar: 40px;
+  --gap: 16px;
+  --track: 64px;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 var(--size) / 16px var(--font);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: var(--bar);
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg);
+  z-index: 2;
+}
+
+#top {
+  top: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+#bottom {
+  bottom: 0;
+  border-top: 1px solid var(--line);
+}
+
+.group {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+}
+
+.label {
+  all: unset;
+  cursor: pointer;
+  color: var(--dim);
+  padding: 2px 0 1px;
+  border-bottom: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.label:hover,
+.label:focus-visible {
+  color: var(--text);
+}
+
+.label[aria-pressed="true"] {
+  color: var(--text);
+  border-bottom-color: var(--text);
+}
+
+.slider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.slider .label {
+  cursor: ew-resize;
+}
+
+.slider.active .label {
+  color: var(--text);
+}
+
+.track {
+  position: relative;
+  width: var(--track);
+  height: 16px;
+}
+
+.track::before,
+.track .fill {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 1px;
+}
+
+.track::before {
+  right: 0;
+  background: var(--line);
+}
+
+.track .fill {
+  background: var(--dim);
+}
+
+.slider:hover .fill,
+.slider.active .fill {
+  background: var(--text);
+}
+
+#stage {
+  position: fixed;
+  top: var(--bar);
+  bottom: var(--bar);
+  left: 0;
+  right: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+#view {
+  display: block;
+  touch-action: none;
+}
+
+#view.placing {
+  cursor: crosshair;
+}
+
+#probe {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  width: 64px;
+  height: 64px;
+  cursor: grab;
+  touch-action: none;
+}
+
+#progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 1px;
+  width: 0;
+  background: var(--text);
+  z-index: 3;
+  opacity: 0;
+  transition: width 0.25s linear, opacity 0.4s;
+}
+
+#drop {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: max-content;
+  height: max-content;
+}
+
+body.dragging #drop {
+  color: var(--text);
+}
+
+@media (max-width: 520px) {
+  :root {
+    --gap: 10px;
+    --track: 28px;
+  }
+  .bar {
+    padding: 0 12px;
+  }
+}

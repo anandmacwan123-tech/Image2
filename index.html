@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <meta name="description" content="Drop in a photo, get its depth and light, and place 3D objects the light hits correctly. Runs entirely on your device." />
+    <title>depth-light</title>
+    <link rel="icon" href="data:," />
+  </head>
+  <body>
+    <div id="progress" aria-hidden="true"></div>
+    <header id="top" class="bar" hidden>
+      <nav class="group">
+        <button class="label" data-action="open">Open</button>
+        <span class="group" data-group="view">
+          <button class="label" data-view="image" aria-pressed="true">Image</button>
+          <button class="label" data-view="depth">Depth</button>
+          <button class="label" data-view="light">Light</button>
+        </span>
+      </nav>
+      <nav class="group" data-group="right">
+        <span class="group" data-group="settings">
+          <button class="label" data-mode="mono" aria-pressed="true">Mono</button>
+          <button class="label" data-mode="colour">Colour</button>
+          <button class="label" data-action="export">Export</button>
+        </span>
+        <span class="group" data-group="export" hidden>
+          <button class="label" data-export="image">Image</button>
+          <button class="label" data-export="depth">Depth</button>
+          <button class="label" data-export="light">Light</button>
+          <button class="label" data-export="hdri">HDRI</button>
+          <button class="label" data-export="data">Data</button>
+        </span>
+      </nav>
+    </header>
+    <main id="stage">
+      <canvas id="view"></canvas>
+      <canvas id="probe" hidden></canvas>
+    </main>
+    <footer id="bottom" class="bar" hidden>
+      <nav class="group">
+        <button class="label" data-add="sphere">Sphere</button>
+        <button class="label" data-add="cube">Cube</button>
+        <button class="label" data-add="chrome">Chrome</button>
+      </nav>
+      <nav class="group">
+        <span class="slider" data-slider="key"><span class="label">Key</span><span class="track"><span class="fill"></span></span></span>
+        <span class="slider" data-slider="fill"><span class="label">Fill</span><span class="track"><span class="fill"></span></span></span>
+        <span class="slider" data-slider="soft"><span class="label">Soft</span><span class="track"><span class="fill"></span></span></span>
+      </nav>
+    </footer>
+    <button id="drop" class="label">Drop image</button>
+    <input id="file" type="file" accept="image/*,.glb" hidden />
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
