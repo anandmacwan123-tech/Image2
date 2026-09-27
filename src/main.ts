@@ -292,7 +292,21 @@ function uvOf(ev: { clientX: number; clientY: number }): { u: number; v: number 
   return { u: (ev.clientX - r.left) / r.width, v: (ev.clientY - r.top) / r.height };
 }
 
+// Active touches, for pinch-to-scale on phones (the equivalent of scrolling).
+const touches = new Map<number, { x: number; y: number }>();
+let pinch: { o: Placed; distance: number } | null = null;
+const spread = () => {
+  const [a, b] = [...touches.values()];
+  return Math.hypot(a.x - b.x, a.y - b.y);
+};
+
 canvas.addEventListener("pointerdown", (ev) => {
+  touches.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+  if (touches.size === 2 && state.selected) {
+    state.drag = null;
+    pinch = { o: state.selected, distance: spread() };
+    return;
+  }
   const { u, v } = uvOf(ev);
   if (state.adding) {
     const o = stage.addObject(state.adding, u, v);
@@ -312,6 +326,13 @@ canvas.addEventListener("pointerdown", (ev) => {
 });
 
 canvas.addEventListener("pointermove", (ev) => {
+  if (touches.has(ev.pointerId)) touches.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+  if (pinch && touches.size === 2) {
+    const d = spread();
+    stage.scaleObject(pinch.o, d / Math.max(pinch.distance, 1));
+    pinch.distance = d;
+    return;
+  }
   const d = state.drag;
   if (!d) return;
   if (d.rotate) {
@@ -323,7 +344,9 @@ canvas.addEventListener("pointermove", (ev) => {
   }
 });
 
-const endDrag = () => {
+const endDrag = (ev: PointerEvent) => {
+  touches.delete(ev.pointerId);
+  if (touches.size < 2) pinch = null;
   state.drag = null;
   canvas.style.cursor = "";
 };
