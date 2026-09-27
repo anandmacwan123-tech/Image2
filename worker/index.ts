@@ -19,7 +19,8 @@ export default {
     if (req.method !== "GET" && req.method !== "HEAD") return new Response(null, { status: 405 });
     const key = decodeURIComponent(path.slice("/models/".length));
     const obj = await env.MODELS.get(key);
-    if (!obj) return new Response(null, { status: 404 });
+    // Name the key, so a missing or misnamed upload is easy to spot.
+    if (!obj) return new Response(`not in R2: ${key}\n`, { status: 404, headers: { "x-depth-light-missing": key } });
     // _headers only applies to static assets, so the Worker sets its own.
     return new Response(req.method === "HEAD" ? null : obj.body, {
       headers: {
