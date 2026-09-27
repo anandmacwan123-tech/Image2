@@ -1,4 +1,5 @@
-import { createReadStream, existsSync, statSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { createReadStream, existsSync, readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import { defaultClientConditions, type Plugin } from "vite";
 import { defineConfig } from "vitest/config";
@@ -47,8 +48,30 @@ function localModels(): Plugin {
   };
 }
 
+// Offline after first load: at build time, emit a service worker that
+// precaches the app shell. Its version comes from the bundle's file names, so
+// every deploy installs a fresh one and drops the old shell.
+function serviceWorker(): Plugin {
+  return {
+    name: "service-worker",
+    apply: "build",
+    generateBundle(_, bundle) {
+      const files = Object.keys(bundle)
+        .filter((f) => !f.endsWith(".map") && f !== "index.html")
+        .map((f) => `/${f}`);
+      const version = createHash("sha256").update(files.sort().join("\n")).digest("hex").slice(0, 12);
+      const template = readFileSync(resolve("src/sw.js"), "utf8");
+      this.emitFile({
+        type: "asset",
+        fileName: "sw.js",
+        source: template.replace("__VERSION__", version).replace("__SHELL__", JSON.stringify(["/", ...files])),
+      });
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [localModels()],
+  plugins: [localModels(), serviceWorker()],
   // ORT's default entry bundles its 26 MB runtime as an asset, over the
   // Cloudflare per-file limit. The extern-wasm entry loads it from the URL
   // set in the worker instead (served from R2 under /models/).

@@ -26,6 +26,7 @@ const post = (msg: FromWorker, transfer: Transferable[] = []) => self.postMessag
 
 let modelBytes: Promise<Uint8Array> | null = null;
 let prefer: "webgpu" | "wasm" = "webgpu";
+let tokenOverride: number | undefined;
 let session: Promise<{ session: ort.InferenceSession; backend: string }> | null = null;
 
 async function download(url: string): Promise<Uint8Array> {
@@ -132,7 +133,7 @@ async function analyze(id: number, bytes: ArrayBuffer, mime: string): Promise<vo
   const stats = measure(pixels(bitmap, (W - cw) >> 1, (H - ch) >> 1, cw, ch, cw, ch), cw, ch);
 
   const s = await getSession();
-  const tokens = s.backend === "webgpu" ? NUM_TOKENS : NUM_TOKENS_WASM;
+  const tokens = tokenOverride ?? (s.backend === "webgpu" ? NUM_TOKENS : NUM_TOKENS_WASM);
   const size = inputSize(tokens, W, H);
   const rgba = pixels(bitmap, 0, 0, W, H, size.width, size.height);
   bitmap.close();
@@ -178,6 +179,7 @@ self.onmessage = async (ev: MessageEvent<ToWorker>) => {
   try {
     if (msg.type === "load") {
       prefer = msg.prefer;
+      tokenOverride = msg.tokens;
       const s = await getSession();
       post({ type: "ready", backend: s.backend });
     } else if (msg.type === "analyze") {

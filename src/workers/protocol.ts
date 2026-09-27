@@ -6,7 +6,7 @@ import type { LightFit } from "../light/fit";
 import type { PhotoStats } from "../lib/stats";
 
 export type ToWorker =
-  | { type: "load"; prefer: "webgpu" | "wasm" }
+  | { type: "load"; prefer: "webgpu" | "wasm"; tokens?: number }
   | { type: "analyze"; id: number; bytes: ArrayBuffer; mime: string };
 
 export interface Analysis {

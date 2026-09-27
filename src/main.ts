@@ -81,8 +81,21 @@ worker.onmessage = (ev: MessageEvent<FromWorker>) => {
     if (!stage.photo) dropLabel.textContent = /download|fetch|404/i.test(msg.message) ? "Model unavailable" : "Could not read image";
   }
 };
-// ?backend=wasm skips WebGPU, for machines whose GPU driver misbehaves.
-send({ type: "load", prefer: new URLSearchParams(location.search).get("backend") === "wasm" ? "wasm" : "webgpu" });
+// ?backend=wasm skips WebGPU, for machines whose GPU driver misbehaves;
+// ?tokens=1200…3600 trades detail for speed.
+const params = new URLSearchParams(location.search);
+const tokens = Number(params.get("tokens"));
+send({
+  type: "load",
+  prefer: params.get("backend") === "wasm" ? "wasm" : "webgpu",
+  tokens: tokens >= 1200 && tokens <= 3600 ? Math.round(tokens) : undefined,
+});
+
+if (import.meta.env.PROD && "serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js").catch(() => {
+    // Offline support is a bonus; the app works without it.
+  });
+}
 
 // ---- Opening files ----------------------------------------------------------
 
@@ -168,6 +181,10 @@ function layout(): void {
   canvas.style.height = `${Math.floor(h)}px`;
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   stage.resize(Math.max(1, Math.round(Math.floor(w) * dpr)), Math.max(1, Math.round(Math.floor(h) * dpr)));
+  // The probe sits over the canvas's bottom-right corner, not the letterbox.
+  const c = canvas.getBoundingClientRect();
+  probeCanvas.style.right = `${r.right - c.right + 16}px`;
+  probeCanvas.style.bottom = `${r.bottom - c.bottom + 16}px`;
 }
 window.addEventListener("resize", layout);
 
