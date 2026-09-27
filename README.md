@@ -32,14 +32,12 @@ URL switches, mainly for debugging:
 
 ## Deploy
 
-The site is static files plus one Worker that streams model files from R2. Two files go in the bucket: the weights and the ONNX Runtime WebGPU binary. At 25.5 MiB, the runtime is also over the 25 MiB asset limit.
+The site is static files plus one Worker for `/models/*`. The weights (67 MiB) and the ONNX Runtime WebGPU binary (25.5 MiB) are both over Cloudflare's 25 MiB per-asset limit, so they ship as 20 MiB parts in `public/weights/`. The Worker streams the parts back together at `/models/<name>`. R2 is checked first: if the `depth-light-models` bucket holds a file, that copy wins, otherwise the parts are used. No uploads are needed.
 
-1. Create the bucket: `npx wrangler r2 bucket create depth-light-models`
-2. Upload both files: `npm run models:upload`. It runs `wrangler r2 object put … --remote` for `moge-2-vits-normal-v1.onnx` and `ort-wasm-simd-threaded.asyncify-<ort version>.wasm`. Use `-- --local` to fill Wrangler's local simulator instead, then test with `npx wrangler dev`.
-3. In the Cloudflare dashboard, create a Worker from this GitHub repo. Build command `npm run build`, deploy command `npx wrangler deploy`. Pushing to `main` deploys production, and other branches get preview URLs.
-4. Optional: attach a custom domain.
+1. Create the bucket once: `npx wrangler r2 bucket create depth-light-models`. The binding needs it to exist, even empty.
+2. In the Cloudflare dashboard, connect this repo in Workers Builds. Build command `npm run build`, deploy command `npx wrangler deploy`.
 
-After bumping `onnxruntime-web`, run `npm run models:upload` again: the runtime's file name carries its version. After a new model export, bump `MODEL_VERSION` in `src/config.ts` first.
+After a new model export (bump `MODEL_VERSION` in `src/config.ts` first) or an `onnxruntime-web` upgrade, run `node scripts/chunk-models.mjs` and commit `public/weights/`. To serve from R2 instead and keep the parts out of git, run `npm run models:upload` and delete `public/weights/`.
 
 ## Using it
 

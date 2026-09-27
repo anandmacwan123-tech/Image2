@@ -1,0 +1,20 @@
+{
+  "moge-2-vits-normal-v1.onnx": {
+    "size": 70601916,
+    "sha256": "0bac41a088c7be5a61abe12f0a3ee3ab0e3e1b62b3fa5135519cfb44be096cdf",
+    "parts": [
+      "moge-2-vits-normal-v1.onnx.0bac41a088c7.part0",
+      "moge-2-vits-normal-v1.onnx.0bac41a088c7.part1",
+      "moge-2-vits-normal-v1.onnx.0bac41a088c7.part2",
+      "moge-2-vits-normal-v1.onnx.0bac41a088c7.part3"
+    ]
+  },
+  "ort-wasm-simd-threaded.asyncify-1.30.0.wasm": {
+    "size": 26781914,
+    "sha256": "39f9f0894d478800487ed9f7dbe92618498db320cf55c8e3d89adff8dce658da",
+    "parts": [
+      "ort-wasm-simd-threaded.asyncify-1.30.0.wasm.39f9f0894d47.part0",
+      "ort-wasm-simd-threaded.asyncify-1.30.0.wasm.39f9f0894d47.part1"
+    ]
+  }
+}
