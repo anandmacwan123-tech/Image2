@@ -93,6 +93,7 @@ The ambient is the SH fit minus the key's and sources' SH projections, so the ke
 - **Synthetic room** (dark floor, white walls, 12 objects, three light directions): key error of 0.11–0.23° in every case, with dark and white floors, and with and without cast shadows. Without regions and the floor split it's off by more than 5°. The tests enforce under 1°.
 - **Export**: the shipped file stores fp16 weights and computes in fp32. Against PyTorch, median depth error is 1e-4 and normals and masks are identical.
 - **Speed** (headless Chromium, WASM, 4 threads, 1200 tokens): about 12 s per photo including the light fit, and about 3 s to reopen a photo from the geometry cache.
+- **WebGPU vs WASM**: the same photo gives the same field of view (to 1e-5°), the same mask and the same key direction to five decimals. That was checked in headless Chromium, whose software GPU is far too slow to time.
 - **Real photos**: sunlit outdoor scenes and tabletops give plausible keys. Flat-lit interiors mostly come out as ambient, and scenes with mixed lamps and windows can land on the wrong side. The probe ball and sliders are the fix.
 
 ## Differences from the plan
